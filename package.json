@@ -1,0 +1,12 @@
+{
+  "name": "reddit-top-5",
+  "version": "0.0.0",
+  "description": "Simple webapp to fetch subreddit overviews",
+  "main": "server.js",
+  "repository": "",
+  "author": "Standa Opichal <opichals@gmail.com>",
+  "dependencies": {
+    "express": "~3.2.4",
+    "raw.js": "^0.4.0"
+  }
+}
