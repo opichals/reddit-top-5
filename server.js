@@ -16,6 +16,10 @@ app.get('/', function(request, response) {
     response.write('<h1>Reddit-Top-5</h1>');
 
     r.fetchTop5(function(data) {
+      if (!data) { // no more data
+        response.end();
+      }
+
       response.write('<h3>'+data.name+'</h3>');
       data.titles.forEach(function(entry) {
         response.write('<a href="https://www.reddit.com'+entry.permalink+'">'+entry.title+'</a><br>\n');

@@ -3,7 +3,11 @@ rawjs._addListingRequest("mySubreddits", "subreddits/mine.json");
 var reddit = new rawjs("top-9: top-5 from each reddit");
 
 function auth(req, res, callback) {
-    reddit.setupOAuth2("uNzrSv7R1kAyMQ", "zRLEjhZ3esbgO0jhdHUQV9jvPj4", "http://"+req.host);
+    if (req.host.match(/herokuapp/)) {
+        reddit.setupOAuth2("uNzrSv7R1kAyMQ", "zRLEjhZ3esbgO0jhdHUQV9jvPj4", "http://"+req.host);
+    } else {
+        reddit.setupOAuth2("-Nv1yz1Af4XuuA", "r58Dp2_GM46nvzY-bnhv6aAj16M", "http://"+req.host);
+    }
 
     if (!req.query.token) {
         if (!req.query.code) {
@@ -25,17 +29,29 @@ function auth(req, res, callback) {
     });
 }
 
+var LIMIT = 10;
+
 function fetchTop5(callback) {
-    reddit.mySubreddits({}, function(err, payload) {
+    fetchTop5Slice(callback)
+}
+
+function fetchTop5Slice(callback, afterId) {
+    reddit.mySubreddits({ limit: LIMIT, after: afterId }, function(err, payload) {
         if (err) throw err;
 
         var subreddits = payload.children.map(function(sub) {
             return sub.data.display_name;
         });
-
         subreddits.forEach(top5.bind(this, function(data) {
             callback(data);
         }));
+
+        if (payload.children.length === LIMIT) {
+            var lastItem = payload.children[payload.children.length - 1]
+            fetchTop5Slice(callback, lastItem.data.name);
+        } else {
+            // FIXME! chain in callback(null);
+        }
     });
 }
 
