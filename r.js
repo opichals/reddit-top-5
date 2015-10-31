@@ -31,33 +31,37 @@ function auth(req, res, callback) {
 
 var LIMIT = 10;
 
-function fetchTop5(callback) {
-    fetchTop5Slice(callback)
+function fetchTop5(params, callback) {
+    fetchTop5Slice(params, callback)
 }
 
-function fetchTop5Slice(callback, afterId) {
+function fetchTop5Slice(params, callback, afterId) {
     reddit.mySubreddits({ limit: LIMIT, after: afterId }, function(err, payload) {
         if (err) throw err;
+        if (!payload) return;
 
         var subreddits = payload.children.map(function(sub) {
             return sub.data.display_name;
         });
-        subreddits.forEach(top5.bind(this, function(data) {
+        subreddits.forEach(top5.bind(this, params, function(data) {
             callback(data);
         }));
 
         if (payload.children.length === LIMIT) {
             var lastItem = payload.children[payload.children.length - 1]
-            fetchTop5Slice(callback, lastItem.data.name);
+            fetchTop5Slice(params, callback, lastItem.data.name);
         } else {
             // FIXME! chain in callback(null);
         }
     });
 }
 
-function top5(callback, subreddit) {
+function top5(params, callback, subreddit) {
     console.log('r\\', subreddit);
-    reddit.top({"r": subreddit, "t": 'day', "limit": 5}, function(err, payload) {
+
+    params.r = subreddit;
+
+    reddit.top(params, function(err, payload) {
         console.log('r/', subreddit);
         if (err) throw err;
 

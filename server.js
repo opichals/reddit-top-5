@@ -15,7 +15,16 @@ app.get('/', function(request, response) {
     response.writeHead(200, {'Content-Type': 'text/html'});
     response.write('<h1>Reddit-Top-5</h1>');
 
-    r.fetchTop5(function(data) {
+    var params = Object.keys(request.query).reduce(function(hash, key) {
+      if (key !== 'state' &&
+          key !== 'code' &&
+          key !== 'token') {
+            hash[key] = request.query[key];
+        }
+        return hash;
+    }, {});
+
+    r.fetchTop5(params, function(data) {
       if (!data) { // no more data
         response.end();
       }
